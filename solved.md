@@ -1476,6 +1476,9 @@ https://leetcode.com/problems/unique-paths-iii/discuss/1521579/javascript-dfs-95
 981 Time Based Key-Value Store
 https://leetcode.com/problems/time-based-key-value-store/discuss/1146437/javascript-map-directly-420ms-82.64
 
+982 Triples with Bitwise AND Equal To Zero
+https://leetcode.com/problems/triples-with-bitwise-and-equal-to-zero/solutions/4544987/javascript-brute-force-2554ms/
+
 983 Minimum Cost For Tickets
 https://leetcode.com/problems/minimum-cost-for-tickets/discuss/897900/javascript-dp-76ms
 
@@ -4372,6 +4375,15 @@ https://leetcode.com/problems/count-subarrays-where-max-element-appears-at-least
 
 2963 Count the Number of Good Partitions
 https://leetcode.com/problems/count-the-number-of-good-partitions/solutions/4384838/javascript-record-last-index-173ms/
+
+3042 Count Prefix and Suffix Pairs I
+https://leetcode.com/problems/count-prefix-and-suffix-pairs-i/solutions/4744670/javascript-brute-force-57ms/
+
+3043 Find the Length of the Longest Common Prefix
+https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix/solutions/4744652/javascript-hashset-482ms/
+
+3045 Count Prefix and Suffix Pairs II
+https://leetcode.com/problems/count-prefix-and-suffix-pairs-ii/solutions/4745010/javascript-rolling-hash-61/
 
 Interview:
 https://leetcode.com/discuss/interview-question/431933/rubrik-oa-2019-scatter-palindrome
