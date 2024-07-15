@@ -4,7 +4,9 @@ example problem:
 https://leetcode.com/problems/implement-trie-prefix-tree/
 https://leetcode.com/problems/sum-of-prefix-scores-of-strings/
 https://leetcode.com/problems/length-of-the-longest-valid-substring/
-https://leetcode.com/contest/weekly-contest-370/problems/maximum-balanced-subsequence-sum/
+
+TrieMap
+https://leetcode.com/problems/construct-string-with-minimum-cost/
 */
 
 class TrieArray {
@@ -13,9 +15,10 @@ class TrieArray {
         this.cnt = 0;
         this.end = false; // represent if it is end of a word
     }
+
     insert(s) {
         let cur = this;
-        for (let i = s.length - 1; i >= 0; i--) { // reverse insert
+        for (let i = s.length - 1; i >= 0; i--) { // reverse insert for suffix
             let c = s[i];
             // for (const c of s) {
             let idx = ord(c) - 97;
@@ -25,6 +28,7 @@ class TrieArray {
         }
         cur.end = true;
     }
+
     search(s, prefix = false) {
         let cur = this;
         for (const c of s) {
@@ -34,6 +38,7 @@ class TrieArray {
         }
         return prefix ? true : cur.end;
     }
+
     // query(s) {
     //     let cur = this, res = 0;
     //     for (const c of s) {
@@ -43,7 +48,7 @@ class TrieArray {
     //     }
     //     return res;
     // }
-    // isValid(s, l, r) {
+    // suffixRangeMatch(s, l, r) {
     //     let cur = this;
     //     for (let i = r; i >= l; i--) {
     //         let idx = ord(s[i]) - 97;
@@ -55,7 +60,23 @@ class TrieArray {
     // }
 }
 
+class TrieMap {
+    constructor() {
+        this.next = new Map();
+    }
+
+    insert(s) {
+        let cur = this;
+        for (const c of s) {
+            if (!cur.next.has(c)) cur.next.set(c, new TrieMap());
+            cur = cur.next.get(c);
+        }
+    }
+
+    query(t) {
+    }
+}
 
 class TrieBinary {
-    
+
 }

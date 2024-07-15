@@ -1,7 +1,7 @@
 /**
  * 12.19 evening  12.21 evening
  * https://leetcode.com/contest/weekly-contest-220/problems/jump-game-vi/
- * 
+ *
  * read:
  * https://zxi.mytechroad.com/blog/dynamic-programming/leetcode-1696-jump-game-vi/
  */
@@ -13,7 +13,7 @@
  * https://leetcode.com/contest/weekly-contest-220/ranking/2/  cuiaoxiang
  * https://leetcode.com/problems/jump-game-vi/discuss/978544/C%2B%2B-DP-%2B-Pruning-vs.-Monodeq
  */
-const maxResult = (nums, k) => {
+const maxResult1 = (nums, k) => {
     let n = nums.length;
     let dp = Array(n).fill(0);
     dp[n - 1] = nums[n - 1];
@@ -36,71 +36,74 @@ const maxResult = (nums, k) => {
 
 
 //////////////////////////////////////////////////////////////
-const highestOneBit = (i) => {
-    i |= (i >> 1);
-    i |= (i >> 2);
-    i |= (i >> 4);
-    i |= (i >> 8);
-    i |= (i >> 16);
-    return i - (i >>> 1);
-};
-
-class SegmentTreeRMQ {
-    constructor(n) {
-        this.N = n;
-        this.M = highestOneBit(Math.max(this.N - 1, 1)) << 2;
-        this.H = this.M >>> 1;
-        this.st = Array(this.M).fill(0).map((x, i) => {
-            if (i >= 0 && i <= this.M) x = Number.MAX_VALUE;
-        });
+// 06/03/22 night
+function SegmentTreeRMQ(input) { // range max query
+    let n, a;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+        initializeFromArray();
     }
-
-    update(pos, x) {
-        this.st[this.H + pos] = x;
-        for (let i = (this.H + pos) >>> 1; i >= 1; i >>>= 1) this.propagate(i);
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[n + i] = input[i];
+        for (let i = n - 1; i >= 1; i--) pushup(i);
     }
-
-    propagate(i) {
-        this.st[i] = Math.min(this.st[2 * i], this.st[2 * i + 1]);
+    function update(pos, v) {
+        a[n + pos] = v;
+        for (let i = parent(n + pos); i >= 1; i = parent(i)) pushup(i);
     }
-
-    minx(low, high) {
-        let min = Number.MAX_VALUE;
-        if (low >= high) return min;
-        while (low != 0) {
-            let f = low & -low;
-            if (low + f > high) break;
-            let v = this.st[parseInt((this.H + low) / f)];
-            if (v < min) min = v;
-            low += f;
+    function pushup(i) {
+        a[i] = f(a[left(i)], a[right(i)]);
+    }
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = Number.MIN_SAFE_INTEGER;
+        if (l >= r) return res;
+        l += n;
+        r += n;
+        for (; l < r; l = parent(l), r = parent(r)) {
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        while (low < high) {
-            let f = high & -high;
-            let v = this.st[parseInt((this.H + high) / f) - 1];
-            if (v < min) min = v;
-            high -= f;
-        }
-        return min;
+        return res;
     }
-};
+    function f(x, y) {
+        return Math.max(x, y);
+    }
+    function parent(i) {
+        return i >> 1;
+    }
+    function left(i) {
+        return 2 * i;
+    }
+    function right(i) {
+        return 2 * i + 1;
+    }
+    function tree() {
+        return a;
+    }
+}
 
 // Accepted --- 312ms 37.5%
 /**
- * reference: 
+ * reference:
  * https://leetcode.com/contest/weekly-contest-220/ranking/3/  uwi
  * https://leetcode.com/contest/weekly-contest-220/ranking 	kirika-comp
  */
-const maxResult2 = (nums, k) => {
-    let n = nums.length;
-    let strmq = new SegmentTreeRMQ(n + 1);
-    let dp = Array(n).fill(0);
-    dp[0] = nums[0];
-    strmq.update(0, -nums[0]);
+const maxResult = (a, k) => {
+    let n = a.length, st = new SegmentTreeRMQ(n + 1), dp = Array(n).fill(0);
+    dp[0] = a[0];
+    st.update(0, a[0]);
     for (let i = 1; i < n; i++) {
-        dp[i] = -strmq.minx(Math.max(0, i - k), i) + nums[i];
-        strmq.update(i, -dp[i]);
+        dp[i] = st.query(Math.max(0, i - k), i) + a[i];
+        st.update(i, dp[i]);
     }
-    // console.log(dp);
     return dp[n - 1];
 };
 
@@ -126,8 +129,8 @@ const main = () => {
         k2 = 3;
     let nums3 = [1, -5, -20, 4, -1, 3, -6, -3],
         k3 = 2;
-    console.log(maxResult(nums, k));
-    console.log(maxResult(nums2, k2));
+    console.log(maxResult(nums, k)); // 7
+    console.log(maxResult(nums2, k2)); // 17
     console.log(maxResult(nums3, k3));
 };
 

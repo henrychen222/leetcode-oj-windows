@@ -21,9 +21,9 @@ const minus_mod = (x, y, mod) => ((x - y) % mod + mod) % mod;
 
 const ll = BigInt, mod = 1e9 + 7, bmod = ll(mod);
 // const stringCount = (n) => {
-//     let A = powmod(26, n-1, mod), B = powmod(26, n-2, mod), C = powmod(26, n-3, mod), D = powmod(26, n-4, mod);
-//     pr(A, B, C, D)
-//     let AB = add_mod(A, B, mod), CD = add_mod(C, D, mod), res = add_mod(AB, CD, mod);
+//     let A = powmod(26, n-1, mod), B = powmod(26, n-2, mod), C = powmod(26, n-3, mod), D.java = powmod(26, n-4, mod);
+//     pr(A, B, C, D.java)
+//     let AB = add_mod(A, B, mod), CD = add_mod(C, D.java, mod), res = add_mod(AB, CD, mod);
 //     return res;
 // };
 

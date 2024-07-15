@@ -52,30 +52,48 @@ function Fenwick(n) {
     }
 }
 
-/////////////////////////// 01/17/23 noon in company (use) ////////////////////////////////
-function SegmentTreeRSQ(n) {
-    let h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(0);
-    return { update, query, rangeSum, tree }
+/////////////////////////// 01/17/23 noon in company (use)  07/14/24 new template ////////////////////////////////
+function SegmentTreeRSQ(input) {
+    let n, h, a;
+    let ini = 0;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        h = a.length / 2;
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        h = a.length / 2;
+        initializeFromArray();
+    }
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[h + i] = input[i];
+        for (let i = h - 1; i >= 1; i--) pushup(i);
+    }
     function update(pos, v) {
-        a[n + pos] = v;
-        for (let i = parent(n + pos); i >= 1; i = parent(i)) pushup(i);
+        a[h + pos] = v;
+        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
     }
     function pushup(i) {
-        a[i] = a[left(i)] +  a[right(i)];
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function query(l, r) { // [L, R)
-        let sum = 0;
-        if (l >= r) return 0;
-        l += n;
-        r += n;
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = ini;
+        if (l >= r) return res;
+        l += h;
+        r += h;
         for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) sum += a[l++];
-            if (r & 1) sum += a[--r];
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return sum;
+        return res;
     }
-    function rangeSum(l, r) {
-        return query(0, r + 1) - query(0, l);
+    function f(x, y) {
+        return x + y;
     }
     function parent(i) {
         return i >> 1;

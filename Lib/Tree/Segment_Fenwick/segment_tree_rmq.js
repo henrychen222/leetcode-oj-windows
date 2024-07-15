@@ -1,45 +1,55 @@
 /*
-05/28/22 afternoon   08/13/23 evneing reorganize
+05/28/22 afternoon   08/13/23 evening reorganize
 Example problem:
 
-st.update(i, a[i]) // common
-https://leetcode.com/problems/jump-game-vi/
-https://leetcode.com/problems/dinner-plate-stacks/   firstle() lastle()
-https://leetcode.com/problems/booking-concert-tickets-in-groups/  firstle()
-https://leetcode.com/problems/falling-squares/
-
-st.update(a[i], i)
+https://leetcode.com/problems/dinner-plate-stacks/  (need to set ini = 0)
+https://leetcode.com/problems/booking-concert-tickets-in-groups/ (need to set ini = 0, keep query ini = MAX_SAFE_INTEGER)
 https://leetcode.com/problems/maximum-distance-between-a-pair-of-values/
-https://leetcode.com/problems/longest-increasing-subsequence-ii/
-
-
-Array constructor:
-https://leetcode.com/problems/maximum-balanced-subsequence-sum/
 */
 
 // ------------------------------- range min query -----------------------------------------------------
-function SegmentTreeRMQ(n) { // min
-    let h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MAX_SAFE_INTEGER);
-    h = 2 ** h;
-    // return { update, minx, firstle, lastle, tree }
-    return { update, minx, tree }
+function SegmentTreeRMQ(input) { // range min query
+    let n, h, a;
+    let ini = Number.MAX_SAFE_INTEGER; // may need to set to 0 for some problem
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        h = a.length / 2;
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        initializeFromArray();
+        h = a.length / 2;
+    }
+    return { update, query, tree }
+    // return { update, query, firstle, lastle, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[h + i] = input[i];
+        for (let i = h - 1; i >= 1; i--) pushup(i);
+    }
     function update(pos, v) {
         a[h + pos] = v;
         for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
     }
     function pushup(i) {
-        a[i] = Math.min(a[left(i)], a[right(i)]);  // [min .... max]
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function minx(l, r) { // [L, R)
-        let min = Number.MAX_SAFE_INTEGER;
-        if (l >= r) return min;
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = ini;
+        if (l >= r) return res;
         l += h;
         r += h;
         for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) min = Math.min(min, a[l++]);
-            if (r & 1) min = Math.min(min, a[--r]);
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return min;
+        return res;
+    }
+    function f(x, y) {
+        return Math.min(x, y);
     }
     // function firstle(l, v) {
     //     if (l >= h) return -1;
@@ -84,53 +94,28 @@ function SegmentTreeRMQ(n) { // min
 }
 
 // ------------------------------- range max query -----------------------------------------------------
-// 09/18/22 evening
-function SegmentTreeRMQ(n) { // max
-    let h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MIN_SAFE_INTEGER);
-    h = 2 ** h;
-    return { update, maxx, tree }
-    function update(pos, v) {
-        a[h + pos] = v;
-        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
+/*
+https://leetcode.com/problems/jump-game-vi/
+https://leetcode.com/problems/falling-squares/
+https://leetcode.com/problems/longest-increasing-subsequence-ii/
+https://leetcode.com/problems/maximum-balanced-subsequence-sum/
+*/
+function SegmentTreeRMQ(input) { // range max query
+    let n, h, a;
+    let ini = Number.MIN_SAFE_INTEGER;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        h = a.length / 2;
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        initializeFromArray();
+        h = a.length / 2;
     }
-    function pushup(i) {
-        a[i] = Math.max(a[left(i)], a[right(i)]);  // [max .... min]
-    }
-    function maxx(l, r) { // [L, R)
-        let max = Number.MIN_SAFE_INTEGER;
-        if (l >= r) return max;
-        l += h;
-        r += h;
-        for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) max = Math.max(max, a[l++]);
-            if (r & 1) max = Math.max(max, a[--r]);
-        }
-        return max;
-    }
-    function parent(i) {
-        return i >> 1;
-    }
-    function left(i) {
-        return 2 * i;
-    }
-    function right(i) {
-        return 2 * i + 1;
-    }
-    function tree() {
-        return a;
-    }
-}
-
-
-
-///////////////////////////////////// Array constructor /////////////////////////////////////////////////////////////
-function SegmentTreeRMQ(A) { // min
-    let n = A.length, h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MAX_SAFE_INTEGER);
-    h = 2 ** h;
-    initializeFromArray();
-    return { update, minx, tree }
+    return {update, query, tree}
     function initializeFromArray() {
-        for (let i = 0; i < n; i++) a[h + i] = A[i];
+        for (let i = 0; i < n; i++) a[h + i] = input[i];
         for (let i = h - 1; i >= 1; i--) pushup(i);
     }
     function update(pos, v) {
@@ -138,60 +123,24 @@ function SegmentTreeRMQ(A) { // min
         for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
     }
     function pushup(i) {
-        a[i] = Math.min(a[left(i)], a[right(i)]);
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function minx(l, r) {
-        let min = Number.MAX_SAFE_INTEGER;
-        if (l >= r) return min;
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = ini;
+        if (l >= r) return res;
         l += h;
         r += h;
         for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) min = Math.min(min, a[l++]);
-            if (r & 1) min = Math.min(min, a[--r]);
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return min;
+        return res;
     }
-    function parent(i) {
-        return i >> 1;
-    }
-    function left(i) {
-        return 2 * i;
-    }
-    function right(i) {
-        return 2 * i + 1;
-    }
-    function tree() {
-        return a;
-    }
-}
-
-// 11/12/23 afternoon
-function SegmentTreeRMQArray(A) { // max
-    let n = A.length, h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MIN_SAFE_INTEGER);
-    h = 2 ** h;
-    initializeFromArray();
-    return { update, maxx, tree }
-    function initializeFromArray() {
-        for (let i = 0; i < n; i++) a[h + i] = A[i];
-        for (let i = h - 1; i >= 1; i--) pushup(i);
-    }
-    function update(pos, v) {
-        a[h + pos] = v;
-        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
-    }
-    function pushup(i) {
-        a[i] = Math.max(a[left(i)], a[right(i)]);
-    }
-    function maxx(l, r) {
-        let max = Number.MIN_SAFE_INTEGER;
-        if (l >= r) return max;
-        l += h;
-        r += h;
-        for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) max = Math.max(max, a[l++]);
-            if (r & 1) max = Math.max(max, a[--r]);
-        }
-        return max;
+    function f(x, y) {
+        return Math.max(x, y);
     }
     function parent(i) {
         return i >> 1;

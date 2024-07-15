@@ -101,7 +101,7 @@ main()
 
 ///////////////////////////// 8.1 evening ///////////////////
 // Time Limit 46/48
-// const fourSumCount2 = (A, B, C, D) => {
+// const fourSumCount2 = (A, B, C, D.java) => {
 //     let cnt = 0;
 //     let ABSum = [];
 //     let CDSum = [];
@@ -111,7 +111,7 @@ main()
 //         }
 //     }
 //     for (const i of C) {
-//         for (const j of D) {
+//         for (const j of D.java) {
 //             CDSum.push(i + j);
 //         }
 //     }
@@ -124,12 +124,12 @@ main()
 // };
 
 // Time Limit 46/48
-// const fourSumCount1 = (A, B, C, D) => {
+// const fourSumCount1 = (A, B, C, D.java) => {
 //     let cnt = 0;
 //     for (const i of A) {
 //         for (const j of B) {
 //             for (const k of C) {
-//                 for (const l of D) {
+//                 for (const l of D.java) {
 //                     if (i + j + k + l == 0) {
 //                         cnt++;
 //                     }

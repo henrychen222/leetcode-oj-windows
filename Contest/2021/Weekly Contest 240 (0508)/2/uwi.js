@@ -1,112 +1,71 @@
-// 05/08/21 evening
+// 05/08/21 evening  06/03/24 night
 
 const pr = console.log;
 
-function SegmentTreeRMQ(n) {
-    let N = n;
-    let M = highestOneBit(Math.max(N - 1, 1)) << 2; // tree MAX size
-    let H = M >>> 1; // height
-    let st = Array(M).fill(Number.MAX_SAFE_INTEGER);
-    return { update, minx, getTree, size, height }
-    function highestOneBit(i) {
-        i |= (i >> 1);
-        i |= (i >> 2);
-        i |= (i >> 4);
-        i |= (i >> 8);
-        i |= (i >> 16);
-        return i - (i >>> 1);
+function SegmentTreeRMQ(input) { // range min query
+    let n, a;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MAX_SAFE_INTEGER);
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MAX_SAFE_INTEGER);
+        initializeFromArray();
     }
-    function height() {
-        return H;
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[n + i] = input[i];
+        for (let i = n - 1; i >= 1; i--) pushup(i);
     }
-    function size() {
-        return M;
+    function update(pos, v) {
+        a[n + pos] = v;
+        for (let i = parent(n + pos); i >= 1; i = parent(i)) pushup(i);
     }
-    function getTree() {
-        return st;
+    function pushup(i) {
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function update(pos, x) {
-        st[H + pos] = x;
-        for (let i = (H + pos) >>> 1; i >= 1; i >>>= 1) propagate(i);
+    function query(l, r) {
+        return Query(l, r + 1);
     }
-    function propagate(i) {
-        st[i] = Math.min(st[2 * i], st[2 * i + 1]);
-    }
-    function minx(l, r) {
-        let min = Number.MAX_SAFE_INTEGER;
-        if (l >= r) return min;
-        l += H; r += H;
-        for (; l < r; l >>>= 1, r >>>= 1) {
-            if (l & 1) min = Math.min(min, st[l++]);
-            if (r & 1) min = Math.min(min, st[--r]);
+    function Query(l, r) { // [L, R)
+        let res = Number.MAX_SAFE_INTEGER;
+        if (l >= r) return res;
+        l += n;
+        r += n;
+        for (; l < r; l = parent(l), r = parent(r)) {
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return min;
+        return res;
     }
-    function minx1(low, high) {
-        let min = Number.MAX_SAFE_INTEGER;
-        if (low >= high) return min;
-        while (low != 0) {
-            let f = low & -low;
-            if (low + f > high) break;
-            let v = st[parseInt((H + low) / f)];
-            if (v < min) min = v;
-            low += f;
-        }
-        while (low < high) {
-            let f = high & -high;
-            let v = st[parseInt((H + high) / f) - 1];
-            if (v < min) min = v;
-            high -= f;
-        }
-        return min;
+    function f(x, y) {
+        return Math.min(x, y);
+    }
+    function parent(i) {
+        return i >> 1;
+    }
+    function left(i) {
+        return 2 * i;
+    }
+    function right(i) {
+        return 2 * i + 1;
+    }
+    function tree() {
+        return a;
     }
 }
 
-// Accepted --- 384ms minx1
-// Accepted --- 380ms minx
-const mx = Math.max;
-const MAX = 10 ** 5;
-const maxDistance1 = (a, b) => {
-    let n = a.length;
-    let m = b.length;
-    // a = a.slice(0, m); //  remove Accepted --- 372ms minx
-    for (let i = n; i < m; i++) a[i] = MAX + 1;
-    let st = new SegmentTreeRMQ(MAX + 3);
-    let res = 0;
+const maxDistance = (a, b) => {
+    let n = a.length, m = b.length, st = new SegmentTreeRMQ(1e5 + 3), res = 0;
     for (let i = 0; i < m; i++) {
-        let mi = st.minx(a[i], a[i] + 1);
-        // pr(mi);
+        let mi = st.query(a[i], a[i]);
         if (mi > i) {
             st.update(a[i], i);
         }
-        let tmp = st.minx(0, b[i] + 1);
+        let tmp = st.query(0, b[i]);
         if (tmp != Number.MAX_SAFE_INTEGER) {
-            res = mx(res, i - tmp);
+            res = Math.max(res, i - tmp);
         }
-    }
-    return res;
-};
-
-// Accepted --- 296ms
-// Accepted --- 272ms change st fill
-const maxDistance = (a, b) => {
-    let n = mx(a.length, b.length);
-    let maxA = mx.apply(Math, a);
-    let maxB = mx.apply(Math, b);
-    let st = new SegmentTreeRMQ(mx(maxA, maxB) + 1);
-    let res = 0;
-    // pr(st.size(), st.height())
-    for (let i = 0; i < n; i++) {
-        let mina = st.minx(a[i], a[i] + 1);
-        if (mina > i) {
-            st.update(a[i], i);
-        }
-        let minb = st.minx(0, b[i] + 1);
-        if (minb != Number.MAX_SAFE_INTEGER) {
-            res = mx(res, i - minb);
-        }
-        // pr(st.getTree());
-        // pr("process", res, i - minb, "track", mina, minb, st.height())
     }
     return res;
 };

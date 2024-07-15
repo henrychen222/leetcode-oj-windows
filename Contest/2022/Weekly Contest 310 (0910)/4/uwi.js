@@ -1,42 +1,45 @@
-// 09/10/22 night
+// 09/10/22 night  06/03/24 night
 
 const pr = console.log;
 
-function SegmentTreeRMQ(n) {
-    let h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MAX_SAFE_INTEGER);
-    h = 2 ** h;
-    return { update, minx, indexOf, tree }
+function SegmentTreeRMQ(input) { // range max query
+    let n, a;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+        initializeFromArray();
+    }
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[n + i] = input[i];
+        for (let i = n - 1; i >= 1; i--) pushup(i);
+    }
     function update(pos, v) {
-        a[h + pos] = v;
-        for (let i = parent(h + pos); i >= 1; i = parent(i)) propagate(i);
+        a[n + pos] = v;
+        for (let i = parent(n + pos); i >= 1; i = parent(i)) pushup(i);
     }
-    function propagate(i) {
-        a[i] = Math.min(a[left(i)], a[right(i)]);
+    function pushup(i) {
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function minx(l, r) {
-        let min = Number.MAX_SAFE_INTEGER;
-        if (l >= r) return min;
-        l += h;
-        r += h;
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = Number.MIN_SAFE_INTEGER;
+        if (l >= r) return res;
+        l += n;
+        r += n;
         for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) min = Math.min(min, a[l++]);
-            if (r & 1) min = Math.min(min, a[--r]);
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return min;
+        return res;
     }
-    function indexOf(l, v) {
-        if (l >= h) return -1;
-        let cur = h + l;
-        while (1) {
-            if (a[cur] <= v) {
-                if (cur >= h) return cur - h;
-                cur = left(cur);
-            } else {
-                cur++;
-                if ((cur & cur - 1) == 0) return -1;
-                if (cur % 2 == 0) cur = parent(cur);
-            }
-        }
+    function f(x, y) {
+        return Math.max(x, y);
     }
     function parent(i) {
         return i >> 1;
@@ -52,16 +55,16 @@ function SegmentTreeRMQ(n) {
     }
 }
 
-// Accepted
+// Accepted --- 143ms
 const lengthOfLIS = (a, k) => {
     let max = Math.max(...a), st = new SegmentTreeRMQ(max + 3), res = 0;
     for (const x of a) {
-        let l = Math.max(x - k, 0), r = x;
-        let min = st.minx(l, r), maxL = min == Number.MAX_SAFE_INTEGER ? 0 : -min;
-        // pr("min", min, "maxL", maxL)
-        maxL++;
-        res = Math.max(res, maxL);
-        st.update(x, -maxL);
+        let l =  Math.max(x-k, 0), r = x;
+        let max = st.query(l, r - 1);
+        if (max == Number.MIN_SAFE_INTEGER) max = 0;
+        max++;
+        res = Math.max(res, max);
+        st.update(x, max);
     }
     return res;
 };

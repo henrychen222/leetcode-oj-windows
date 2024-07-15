@@ -35,32 +35,44 @@ function Bisect() {
     }
 }
 
-function SegmentTreeRMQArray(A) { // max
-    let n = A.length, h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MIN_SAFE_INTEGER);
-    h = 2 ** h;
-    initializeFromArray();
-    return { update, maxx, tree }
+function SegmentTreeRMQ(input) { // range max query
+    let n, a;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+        initializeFromArray();
+    }
+    return { update, query, tree }
     function initializeFromArray() {
-        for (let i = 0; i < n; i++) a[h + i] = A[i];
-        for (let i = h - 1; i >= 1; i--) pushup(i);
+        for (let i = 0; i < n; i++) a[n + i] = input[i];
+        for (let i = n - 1; i >= 1; i--) pushup(i);
     }
     function update(pos, v) {
-        a[h + pos] = v;
-        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
+        a[n + pos] = v;
+        for (let i = parent(n + pos); i >= 1; i = parent(i)) pushup(i);
     }
     function pushup(i) {
-        a[i] = Math.max(a[left(i)], a[right(i)]);
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function maxx(l, r) {
-        let max = Number.MIN_SAFE_INTEGER;
-        if (l >= r) return max;
-        l += h;
-        r += h;
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = Number.MIN_SAFE_INTEGER;
+        if (l >= r) return res;
+        l += n;
+        r += n;
         for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) max = Math.max(max, a[l++]);
-            if (r & 1) max = Math.max(max, a[--r]);
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return max;
+        return res;
+    }
+    function f(x, y) {
+        return Math.max(x, y);
     }
     function parent(i) {
         return i >> 1;
@@ -82,18 +94,14 @@ function SegmentTreeRMQArray(A) { // max
 const maxBalancedSubsequenceSum = (a) => {
     let vals = a.map((x, i) => x - i).sort((x, y) => x - y);
     vals = [...new Set(vals)];
-    let n = a.length, st = new SegmentTreeRMQArray(Array(n + 1).fill(Number.MIN_SAFE_INTEGER)), bi = new Bisect();
-    // pr(n, vals)
+    let n = a.length, st = new SegmentTreeRMQ(Array(n + 1).fill(Number.MIN_SAFE_INTEGER)), bi = new Bisect();
     for (let i = 0; i < n; i++) {
         let v = a[i] - i, idx = bi.bisect_left(vals, v);
-        let max = st.maxx(0, idx + 1);
+        let max = st.query(0, idx);
         if (max < 0) max = 0;
-        // pr(v, idx, max, a[i] + max)
         st.update(idx, a[i] + max);
-        // pr(st.tree());
     }
-    // pr(st.tree())
-    return st.maxx(0, n + 1);
+    return st.query(0, n);
 };
 
 const main = () => {

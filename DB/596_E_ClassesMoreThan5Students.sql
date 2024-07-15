@@ -6,6 +6,6 @@ SELECT c.class FROM (SELECT DISTINCT * FROM courses) AS c
 GROUP BY c.class
 HAVING COUNT(*) >= 5;
 
---- {"headers": {"courses": ["student", "class"]}, "rows": {"courses": [["A", "Math"], ["B", "English"], ["C", "Math"], ["D", "Biology"], ["E", "Math"], ["F", "Computer"], ["G", "Math"], ["H", "Math"], ["I", "Math"]]}}
---- debug1 {"headers": {"courses": ["student", "class"]}, "rows": {"courses": [["A", "Math"], ["B", "English"], ["C", "Math"], ["D", "Biology"], ["E", "Math"], ["F", "Math"], ["G", "Math"]]}}
---- debug2 {"headers": {"courses": ["student", "class"]}, "rows": {"courses": [["A", "Math"], ["B", "English"], ["C", "Math"], ["D", "Biology"], ["E", "Math"], ["F", "Math"], ["A", "Math"]]}}
+--- {"headers": {"courses": ["student", "class"]}, "rows": {"courses": [["A", "Math"], ["B", "English"], ["C", "Math"], ["D.java", "Biology"], ["E", "Math"], ["F", "Computer"], ["G", "Math"], ["H", "Math"], ["I", "Math"]]}}
+--- debug1 {"headers": {"courses": ["student", "class"]}, "rows": {"courses": [["A", "Math"], ["B", "English"], ["C", "Math"], ["D.java", "Biology"], ["E", "Math"], ["F", "Math"], ["G", "Math"]]}}
+--- debug2 {"headers": {"courses": ["student", "class"]}, "rows": {"courses": [["A", "Math"], ["B", "English"], ["C", "Math"], ["D.java", "Biology"], ["E", "Math"], ["F", "Math"], ["A", "Math"]]}}

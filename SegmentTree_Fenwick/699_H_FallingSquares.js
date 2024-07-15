@@ -1,45 +1,48 @@
 /*
-* 09/23/22 night
+* 09/23/22 night  06/03/24 night modify
 * https://leetcode.com/problems/falling-squares/
 */
 
 const pr = console.log;
 
-function SegmentTreeRMQ(n) {
-    let h = Math.ceil(Math.log2(n)), len = 2 * 2 ** h, a = Array(len).fill(Number.MIN_SAFE_INTEGER);
-    h = 2 ** h;
-    return { update, maxx, indexOf, tree }
+function SegmentTreeRMQ(input) { // range max query
+    let n, a;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(Number.MIN_SAFE_INTEGER);
+        initializeFromArray();
+    }
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[n + i] = input[i];
+        for (let i = n - 1; i >= 1; i--) pushup(i);
+    }
     function update(pos, v) {
-        a[h + pos] = v;
-        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
+        a[n + pos] = v;
+        for (let i = parent(n + pos); i >= 1; i = parent(i)) pushup(i);
     }
     function pushup(i) {
-        a[i] = Math.max(a[left(i)], a[right(i)]);
+        a[i] = f(a[left(i)], a[right(i)]);
     }
-    function maxx(l, r) { // query [l, r)
-        let max = Number.MIN_SAFE_INTEGER;
-        if (l >= r) return max;
-        l += h;
-        r += h;
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = Number.MIN_SAFE_INTEGER;
+        if (l >= r) return res;
+        l += n;
+        r += n;
         for (; l < r; l = parent(l), r = parent(r)) {
-            if (l & 1) max = Math.max(max, a[l++]);
-            if (r & 1) max = Math.max(max, a[--r]);
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
         }
-        return max;
+        return res;
     }
-    function indexOf(l, v) {
-        if (l >= h) return -1;
-        let cur = h + l;
-        while (1) {
-            if (a[cur] <= v) {
-                if (cur >= h) return cur - h;
-                cur = left(cur);
-            } else {
-                cur++;
-                if ((cur & cur - 1) == 0) return -1;
-                if (cur % 2 == 0) cur = parent(cur);
-            }
-        }
+    function f(x, y) {
+        return Math.max(x, y);
     }
     function parent(i) {
         return i >> 1;
@@ -55,18 +58,15 @@ function SegmentTreeRMQ(n) {
     }
 }
 
-// Accepted --- 274ms 10.53%
+// Accepted --- 135ms
 const fallingSquares = (a) => {
     let m = coorCompression(a), n = m.size;
-    // pr(m, n)
     let st = new SegmentTreeRMQ(n + 3), res = [], top = 0;
     for (const [l, r] of a) {
-        let L = m.get(l), R = m.get(l + r - 1), max = st.maxx(L, R + 1);
+        let L = m.get(l), R = m.get(l + r - 1), max = st.query(L, R);
         let v = r + Math.max(max, 0);
         top = Math.max(top, v);
         for (let i = L; i <= R; i++) st.update(i, v);
-        // st.update(R + 1, v);
-        // pr(L, R, max, r, v)
         res.push(top);
     }
     return res;
@@ -87,7 +87,7 @@ const main = () => {
     let a = [[1, 2], [2, 3], [6, 1]];
     let a2 = [[100, 100], [200, 100]];
     let debug1 = [[1, 5], [2, 2], [7, 5]];
-    let debug2 = [[9,7],[1,9],[3,1]];
+    let debug2 = [[9, 7], [1, 9], [3, 1]];
     pr(fallingSquares(a))
     pr(fallingSquares(a2))
     pr(fallingSquares(debug1)) // [5,7,7]

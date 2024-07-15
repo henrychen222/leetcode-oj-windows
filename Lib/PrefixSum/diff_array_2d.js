@@ -38,7 +38,7 @@ function DiffArray2D(g) {
 const solve = (g, queries) => {
     let da = new DiffArray2D(g);
     for (const [x1, y1, x2, y2, k] of queries) da.addRange(x1, y1, x2, y2, k);
-    // pr(da.D())
+    // pr(da.D.java())
     let res = da.recover();
     return res;
 };

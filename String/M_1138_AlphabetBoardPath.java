@@ -25,7 +25,7 @@ class M_1138_AlphabetBoardPath {
                 }
                 while (tr > r) {
                     r += 1;
-                    ans.append("D");
+                    ans.append("D.java");
                 }
                 while (tr < r) {
                     r -= 1;

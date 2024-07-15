@@ -1,10 +1,15 @@
-/**
- * 06/03/24 night
- * Example problem:
- * https://leetcode.com/problems/bitwise-ors-of-subarrays/
- * https://leetcode.com/problems/shortest-subarray-with-or-at-least-k-ii
- */
-function SegmentTreeRORQ(input) {
+/*
+06/01/24 night
+Example problem:
+(question changed from and -> or)
+https://leetcode.com/problems/find-subarray-with-bitwise-and-closest-to-k/ (3171)
+https://leetcode.com/problems/find-subarray-with-bitwise-or-closest-to-k/
+https://leetcode.com/problems/find-a-value-of-a-mysterious-function-closest-to-target/ (same question)
+
+https://leetcode.com/contest/weekly-contest-393/ranking/ Q4 uwi
+https://leetcode.com/problems/minimum-sum-of-values-by-dividing-array
+*/
+function SegmentTreeRANDQ(input) {
     let n, h, a;
     let ini = 0;
     if (Number.isInteger(input)) {
@@ -33,7 +38,7 @@ function SegmentTreeRORQ(input) {
         return Query(l, r + 1);
     }
     function Query(l, r) { // [L, R)
-        let res = ini;
+        let res = -1;
         if (l >= r) return res;
         l += h;
         r += h;
@@ -44,7 +49,7 @@ function SegmentTreeRORQ(input) {
         return res;
     }
     function f(x, y) {
-        return x | y;
+        return x & y;
     }
     function parent(i) {
         return i >> 1;
@@ -59,33 +64,4 @@ function SegmentTreeRORQ(input) {
         return a;
     }
 }
-
-
-// 12/01/21 evening
-// reference: https://www.geeksforgeeks.org/number-of-subarrays-have-bitwise-or-k/
-// function SegmentTreeRORQ(a) { // range bitwise OR query
-//     let n = a.length, h = Math.ceil(Math.log2(n));
-//     const MAX = 2 * 2 ** h - 1;
-//     let tree = Array(MAX).fill(0);
-//     build(a, 1, 0, n - 1);
-//     return { query }
-//     function build(a, i, tl, tr) {
-//         if (tl == tr) {
-//             tree[i] = a[tl];
-//             return;
-//         }
-//         let mid = tl + tr >> 1;
-//         build(a, 2 * i, tl, mid);
-//         build(a, 2 * i + 1, mid + 1, tr);
-//         tree[i] = tree[2 * i] | tree[2 * i + 1];
-//     }
-//     function query(i, tl, tr, l, r) {
-//         if (l > tr || r < tl) return 0; // out of range
-//         if (l <= tl && r >= tr) return tree[i]; // inside
-//         let mid = tl + tr >> 1;
-//         let q1 = query(2 * i, tl, mid, l, r);
-//         let q2 = query(2 * i + 1, mid + 1, tr, l, r);
-//         return q1 | q2;
-//     }
-// }
 

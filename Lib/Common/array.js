@@ -26,7 +26,7 @@ const isSubArray_first = (child, parent) => {
     return false;
 };
 
-// 03/14/21 evening from arc114 D, use: sort only first kth elements
+// 03/14/21 evening from arc114 D.java, use: sort only first kth elements
 const sortPart = (a, k) => {
     let l = a.slice(0, k);
     // l.sort();    
