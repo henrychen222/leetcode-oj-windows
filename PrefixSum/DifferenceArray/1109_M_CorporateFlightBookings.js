@@ -1,34 +1,33 @@
 /*
- * 07/15/23 night
+ * 07/15/23 night  01/16/25 evening update
  * https://leetcode.com/problems/corporate-flight-bookings/
  */
 
 const pr = console.log;
 
 function DiffArray(n) {
-    let d = Array(n).fill(0);
-    return { addRange, recover }
+    let imos = Array(n).fill(0);
+    return { addRange, simulate, D }
     function addRange(l, r, v) {
-        d[l] += v;
-        if (r + 1 < n) d[r + 1] -= v;
+        imos[l] += v;
+        if (r + 1 < n) imos[r + 1] -= v;
     }
-    function recover() {
-        let res = Array(n).fill(0);
-        res[0] = d[0];
-        for (let i = 1; i < n; i++) res[i] = res[i - 1] + d[i];
-        return res;
+    function simulate() {
+        for (let i = 1; i < n; i++) imos[i] += imos[i - 1];
+    }
+    function D() {
+        return imos;
     }
 }
 
-// Accepted --- 165ms
+// Accepted
 const corpFlightBookings = (bookings, n) => {
     let da = new DiffArray(n + 1);
     for (const [l, r, v] of bookings) {
         da.addRange(l, r, v);
     }
-    let res = da.recover();
-    // pr(res);
-    return res.slice(1);
+    da.simulate();
+    return da.D().slice(1);
 };
 
 const main = () => {

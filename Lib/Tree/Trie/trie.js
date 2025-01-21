@@ -7,6 +7,9 @@ https://leetcode.com/problems/length-of-the-longest-valid-substring/
 
 TrieMap
 https://leetcode.com/problems/construct-string-with-minimum-cost/
+
+TrieArrayBinary
+https://leetcode.com/contest/weekly-contest-221/problems/maximum-xor-with-an-element-from-array/
 */
 
 class TrieArray {
@@ -77,6 +80,6 @@ class TrieMap {
     }
 }
 
-class TrieBinary {
-
+// 01-Trie
+class TrieArrayBinary {
 }

@@ -1,13 +1,16 @@
 /*
+reference
+https://leetcode.cn/circle/discuss/0viNMK/       01/16/25 afternoon
+
 ---- Example Problems
-https://leetcode.com/problems/take-k-of-each-character-from-left-and-right/
-https://leetcode.com/problems/longest-substring-without-repeating-characters/
-https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/
-https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/
-https://leetcode.com/problems/maximum-erasure-value/
-https://leetcode.com/problems/longest-substring-of-all-vowels-in-order/
-https://leetcode.com/problems/longest-nice-subarray/
-https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/
+3 https://leetcode.com/problems/longest-substring-without-repeating-characters/
+1358 https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/
+1438 https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/
+1658 https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/
+1695 https://leetcode.com/problems/maximum-erasure-value/
+1839 https://leetcode.com/problems/longest-substring-of-all-vowels-in-order/
+2401 https://leetcode.com/problems/longest-nice-subarray/
+2516 https://leetcode.com/problems/take-k-of-each-character-from-left-and-right/
 */
 
 // similar to Monotonic Stack template

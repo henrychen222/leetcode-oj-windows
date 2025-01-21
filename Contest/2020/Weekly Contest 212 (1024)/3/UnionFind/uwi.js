@@ -1,98 +1,62 @@
-// 10.24 night
-class DJSet {
-    constructor(n) {
-        this.upper = new Array(n).fill(-1);
+/*
+ * 10/24/20 night
+ * 01/09/25 noon update
+ *
+ * similar problem:
+ * https://leetcode.cn/circle/discuss/oo2jkI/
+ */
+function DJSet(n) {
+    let p = Array(n).fill(-1);
+    return { find, union, count, equiv, par, grp }
+    function find(x) {
+        return p[x] < 0 ? x : p[x] = find(p[x]);
     }
-
-    find(x) {
-        return this.upper[x] < 0 ? x : (this.upper[x] = this.find(this.upper[x]));
+    function union(x, y) {
+        x = find(x);
+        y = find(y);
+        if (x == y) return false;
+        if (p[x] < p[y]) [x, y] = [y, x];
+        p[x] += p[y];
+        p[y] = x;
+        return true;
     }
-
-    equiv(x, y) {
-        return this.find(x) == this.find(y);
+    function count() { // total groups
+        return p.filter(v => v < 0).length;
     }
-
-    union(x, y) {
-        x = this.find(x);
-        y = this.find(y);
-        if (x != y) {
-            if (this.upper[x] < this.upper[y]) {
-                let tmp = x;
-                x = y;
-                y = tmp;
-            }
-            this.upper[x] += this.upper[y];
-            this.upper[y] = x;
-        }
-        return x == y;
+    function equiv(x, y) { // isConnected
+        return find(x) == find(y);
     }
-
-    count() {
-        let cnt = 0;
-        for (const u of this.upper) {
-            if (u < 0) cnt++;
-        }
-        return cnt;
+    function par() {
+        return p;
+    }
+    function grp() { // generate all groups (nlogn)
+        let g = [];
+        for (let i = 0; i < n; i++) g.push([]);
+        for (let i = 0; i < n; i++) g[find(i)].push(i); // sorted and unique
+        return g;
     }
 }
 
-// Accepted --- 260ms
-const minimumEffortPath = (heights) => {
-    let m = heights.length;
-    let n = heights[0].length;
-    if (m + n == 2) return 0;
-    let es = new Array(2 * m * n).fill(0);
-    let p = 0;
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (i + 1 < m) {
-                es[p++] = [i * n + j, (i + 1) * n + j, Math.abs(heights[i][j] - heights[i + 1][j])];
-            }
-            if (j + 1 < n) {
-                es[p++] = [i * n + j, i * n + j + 1, Math.abs(heights[i][j] - heights[i][j + 1])];
-            }
-        }
-    }
-    // console.log(p, es);
-    es = es.slice(0, p);
-    // console.log(es);
-    es.sort((a, b) => a[2] - b[2]);
-    let ds = new DJSet(m * n);
-    for (const e of es) {
-        ds.union(e[0], e[1]);
-        if (ds.equiv(0, (m - 1) * n + (n - 1))) {
-            return e[2];
-        }
-    }
-    return -1;
-};
+const pathRule = (x, y) => Math.abs(x - y);
 
-// Accepted --- 248ms
-const minimumEffortPath_modify = (heights) => {
-    let m = heights.length;
-    let n = heights[0].length;
+const minimumEffortPath = (g) => {
+    let n = g.length, m = g[0].length, nodes = [], ds = new DJSet(n * m);
     if (m + n == 2) return 0;
-    let es = new Array(2 * m * n).fill(0);
-    let p = 0;
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            if (i + 1 < m) {
-                es[p] = [i * n + j, (i + 1) * n + j, Math.abs(heights[i][j] - heights[i + 1][j])];
-                p++;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
+            if (i + 1 < n) {
+                nodes.push([i * m + j, (i + 1) * m + j, pathRule(g[i][j], g[i + 1][j])]);
             }
-            if (j + 1 < n) {
-                es[p] = [i * n + j, i * n + j + 1, Math.abs(heights[i][j] - heights[i][j + 1])];
-                p++;
+            if (j + 1 < m) {
+                nodes.push([i * m + j, i * m + j + 1, pathRule(g[i][j], g[i][j + 1])]);
             }
         }
     }
-    es = es.slice(0, p);
-    es.sort((a, b) => a[2] - b[2]);
-    let ds = new DJSet(m * n);
-    for (const e of es) {
-        ds.union(e[0], e[1]);
-        if (ds.equiv(0, (m - 1) * n + (n - 1))) {
-            return e[2];
+    nodes.sort((x, y) => x[2] - y[2]);
+    for (const [x, y, v] of nodes) {
+        ds.union(x, y);
+        if (ds.equiv(0, (n - 1) * m + (m - 1))) { // [0, 0] [n-1, m-1] connected
+            return v;
         }
     }
     return -1;

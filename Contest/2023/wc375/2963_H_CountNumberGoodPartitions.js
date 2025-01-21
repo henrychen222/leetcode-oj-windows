@@ -22,28 +22,40 @@ const numberOfGoodPartitions = (a) => {
     return pow_mod(2, res - 1, mod);
 };
 
+/////////////////////////// 01/20/25 night ////////////////////////////////
 // Accepted uwi
-const numberOfGoodPartitions1 = (a) => {
+function DiffArray(n) {
+    let imos = Array(n).fill(0);
+    return { update, simulate, D }
+    function update(l, r, v) {
+        imos[l] += v;
+        imos[r] -= v;
+        // if (r + 1 < n) imos[r + 1] -= v;
+    }
+    function simulate() {
+        for (let i = 1; i < n; i++) imos[i] += imos[i - 1];
+    }
+    function D() {
+        return imos;
+    }
+}
+
+const numberOfGoodPartitions = (a) => {
     let first = new Map(), last = new Map(); // save first/last occurence index of value
     a.map((x, i) => {
         if (!first.has(x)) first.set(x, i);
         last.set(x, i);
     })
-    // pr(first, last)
-    let n = a.length, imos = Array(n + 1).fill(0), res = 1;
+    let n = a.length, da = new DiffArray(n + 1), res = 1;
     for (const [x, i] of first) {
-        // pr(x, i, last.get(x))
-        imos[i]++;
-        imos[last.get(x)]--;
+        da.update(i, last.get(x), 1);
     }
-    // pr(imos)
-    for (let i = 0; i < n; i++) imos[i + 1] += imos[i];
-    // pr(imos)
+    da.simulate();
     for (let i = 0; i < n - 1; i++) {
-        if (imos[i] == 0) res = res * 2 % mod;
+        if (da.D()[i] == 0) res = res * 2 % mod;
     }
     return res;
-};;
+};
 
 
 const main = () => {

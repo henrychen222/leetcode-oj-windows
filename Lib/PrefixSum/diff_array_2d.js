@@ -1,6 +1,7 @@
 /*
 08/21/23 afternoon
 reference:
+https://leetcode.cn/circle/discuss/UUuRex/
 https://www.geeksforgeeks.org/two-dimensional-difference-array/
 
 Example problem:

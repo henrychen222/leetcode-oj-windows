@@ -285,18 +285,18 @@ class SplayTree {
         let x = this.findKthNode(rank);
         return x == null ? null : (x.val);
     }
-    higher(value) { // > upper_bound()  LST.next(value)
+    higher(value) { // > upper_bound()
         let node = this.findSuccessorOf(value);
         return node == null ? null : (node.val);
     }
-    lower(value) { // <  LST.prev(value - 1)
+    lower(value) { // <
         let node = this.findPrecursorOf(value);
         return node == null ? null : (node.val);
     }
-    ceiling(value) { // >=
+    ceiling(value) { // >= lower_bound()  LST.next(value)
         return this.has(value) ? value : this.higher(value);
     }
-    floor(value) { // <= 
+    floor(value) { // <=                  LST.prev(value)
         return this.has(value) ? value : this.lower(value);
     }
     first() {
