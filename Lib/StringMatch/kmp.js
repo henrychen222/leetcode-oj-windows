@@ -1,6 +1,8 @@
 /**
- * 7.24 evening
+ * 07/24/22 evening
  * reference:
+ * https://leetcode.cn/discuss/post/3144832/fen-xiang-gun-ti-dan-zi-fu-chuan-kmpzhan-ugt4/ (06/13/25 night)
+ *
  * https://github.com/henrychen222/Books/blob/master/Data%20Structures%20and%20Algorithms/JavaScript%20Data%20Structures%20and%20Algorithms.pdf (Page 311)
  * https://gist.github.com/blasten/d42bd0d814b7df1addea
  * https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
@@ -8,7 +10,7 @@
  * https://github.com/trekhleb/javascript-algorithms/blob/master/src/algorithms/string/knuth-morris-pratt/knuthMorrisPratt.js
  * 
  * example problem:
- * https://leetcode.com/problems/longest-happy-prefix/
+ * 1392 https://leetcode.com/problems/longest-happy-prefix/
  */
 const buildKMPTable = (s) => { // longest prefix which is also the suffix of each substring (0, i)
     let n = s.length, pre = Array(n), l = 0;

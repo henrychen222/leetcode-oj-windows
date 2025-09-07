@@ -1,7 +1,9 @@
-/*
-01/12/23 evening
-reference:https://leetcode.com/contest/biweekly-contest-88/ranking liouzhou_101
-*/
+/**
+ * 03/15/25 evening
+ * https://leetcode.com/contest/weekly-contest-441/problems/closest-equal-element-queries/
+ */
+
+const pr = console.log;
 
 class SplayNode {
     constructor(value) {
@@ -47,7 +49,7 @@ class SplayTree {
         y.parent = x;
         y.update();
         x.update();
-    }       
+    }
     zag(x) { // left rotation
         let y = x.parent;
         if (x.left != null) x.left.parent = y;
@@ -277,15 +279,6 @@ class SplayTree {
         let rank_y = this.findRankOf(y);
         return rank_y - rank_x + 1;
     }
-    countRange(start, end) {
-        let l = this.ceiling(start); // >= start
-        let r = this.floor(end); // <= end
-        if (l == null || r == null) return 0;
-        let rl = this.rankOf(l);
-        let rr = this.rankOf(r);
-        rr += this.count(r);
-        return rr - rl;
-    }
     rankOf(value) { // The number of elements strictly less than value
         let x = this.findPrecursorOf(value);
         return x == null ? 0 : this.findRankOf(x) + 1;
@@ -343,50 +336,45 @@ class SplayTree {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-const pr = console.log;
+const counter_value_in_indexA_in = (a_or_s) => { let m = new Map(); let n = a_or_s.length; for (let i = 0; i < n; i++) { if (!m.has(a_or_s[i])) m.set(a_or_s[i], new SplayTree()); m.get(a_or_s[i]).insert(i); } return m; };
+
+const minCircularDis = (n, l, r) => Math.min(r - l, n - r + l);
+
+// 12:12AM accpeted
+const solveQueries = (a, b) => {
+    let m = counter_value_in_indexA_in(a), res = [], n = a.length;
+    b.map(x => {
+        let tree = m.get(a[x]) || [], v = -1;
+        if (tree.size() <= 1) {
+        } else {
+            let L = tree.lower(x), R = tree.higher(x);
+            if (L == null) L = tree.last();
+            if (R == null) R = tree.first();
+            let dR = x < R ? minCircularDis(n, x, R) : minCircularDis(n, R, x);
+            let dL = x < L ? minCircularDis(n, x, L) : minCircularDis(n, L, x);
+            // pr(x, a[x], tree.show(), L, R, [dL, dR])
+            v = dL < dR ? dL : dR;
+        }
+        res.push(v);
+    })
+    return res;
+};
 
 const main = () => {
-    let Atree = new SplayTree();
-    let A = [3, 2, -1, 6, 5, 7, -2];
-    for (const x of A) Atree.insert(x);
-    A.sort((x, y) => x - y);
-    pr(A, A.length, Atree.size()); // 7 7
-    pr("findKthNode", Atree.findKth(0), Atree.findKth(1), Atree.findKth(2), Atree.findKth(3), Atree.findKth(4)) // -2 -1 2 3 5
-    pr("rankOf", Atree.rankOf(3), Atree.rankOf(4), Atree.rankOf(5), Atree.rankOf(6)) // 3 4 4 5
-    pr(Atree.first(), Atree.last()) // -2 7
-    pr(Atree.higher(-2), Atree.higher(-1), Atree.higher(6), Atree.higher(7)); // -1 2 7 null
-    pr(Atree.lower(-2), Atree.lower(-1), Atree.lower(6), Atree.lower(7)); // null -2 5 6
-    pr(Atree.count(-2), Atree.count(7)) // 1 1
-    Atree.remove(-2);
-    pr(Atree.size()); // 6
-    Atree.remove(7);
-    pr(Atree.higher(6)); // null
-    pr(Atree.lower(-1)); // null
-    pr(Atree.size()) // 5
-    pr(Atree.first(), Atree.last()) // -1 6
-
-    let B = [3, 2, -1, 6, 5, 7, 7, -2, -2, -2];
-    let Btree = new SplayTree();
-    for (const x of B) Btree.insert(x);
-    B.sort((x, y) => x - y);
-    pr("B", B);
-    pr(Btree.show(), Btree.size()); // 10
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 2 3
-    pr(Btree.higher(-2), Btree.higher(-1), Btree.higher(6), Btree.higher(7)); // -1 2 7 null
-    Btree.remove(-2);
-    pr(Btree.size()); // 9
-    Btree.remove(7);
-    pr(Btree.size()) // 8
-    pr(Btree.higher(6)); // 7
-    pr(Btree.lower(-1)); // -2
-    pr(Btree.first(), Btree.last()) // -2 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 2
-    Btree.remove(-2);
-    Btree.remove(-2);
-    pr(Btree.size()) // 6
-    pr(Btree.first(), Btree.last()) // -1 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 0
+    let a = [1, 3, 1, 4, 1, 3, 2], b = [0, 3, 5];
+    let a2 = [1, 2, 3, 4], b2 = [0, 1, 2, 3]
+    let a3 = [14, 14, 4, 2, 19, 19, 14, 19, 14], b3 = [2, 4, 8, 6, 3]
+    pr(solveQueries(a, b))
+    pr(solveQueries(a2, b2))
+    pr(solveQueries(a3, b3)) // [-1,1,1,2,-1]
 };
 
 main()
+
+
+/*
+[0, 2, 4]
+
+
+7  [1 5]  7-5+1
+*/

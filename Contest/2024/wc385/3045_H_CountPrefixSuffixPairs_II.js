@@ -27,7 +27,7 @@ function RollingHashPolynomial(s, base, mod) {
 const addOneOrManyMap = (m, x, cnt = 1) => m.set(x, m.get(x) + cnt || cnt);
 
 // Accepted
-const countPrefixSuffixPairs = (a) => {
+const countPrefixSuffixPairs1 = (a) => {
     let res = 0, m = new Map();
     for (const s of a) {
         let n = s.length, rh = new RollingHashPolynomial(s, 61, 1e9 + 7);
@@ -46,6 +46,50 @@ const countPrefixSuffixPairs = (a) => {
     return res;
 };
 
+/////////////////////////////// Solution 2 Trie --- 06/16/25 morning ///////////////////////////////////////////
+class TrieMapPrefixSuffixBind {
+    constructor() {
+        this.next = new Map();
+        this.cnt = 0;  // prefix count
+        this.end = false; // represent if it is end of a word
+    }
+
+    insert(s) {
+        let cur = this, n = s.length;
+        for (let i = 0; i < n; i++) {
+            let c = `${s[i]}${s[n - i - 1]}`; // bind key
+            // pr(c)
+            if (!cur.next.has(c)) cur.next.set(c, new TrieMapPrefixSuffixBind());
+            cur = cur.next.get(c);
+            cur.cnt++;
+        }
+        cur.end = true;
+    }
+    query(t) {
+        let cur = this, n = t.length;
+        for (let i = 0; i < n; i++) {
+            let c = `${t[i]}${t[n - i - 1]}`; // bind key
+            if (!cur.next.has(c)) return 0;
+            cur = cur.next.get(c);
+        }
+        return cur.cnt;
+    }
+}
+
+/*
+reference:
+https://leetcode.com/problems/count-prefix-and-suffix-pairs-ii/solutions/6251253/trie-solution/
+https://leetcode.cn/problems/count-prefix-and-suffix-pairs-ii/solutions/2645319/bu-chao-gang-qie-bao-zheng-zheng-que-xin-tl5g/
+*/
+const countPrefixSuffixPairs = (a) => {
+    let res = 0, tree = new TrieMapPrefixSuffixBind();
+    for (let i = a.length - 1; i >= 0; i--) {
+        res += tree.query(a[i]);
+        // pr(a[i], tree.query(a[i]))
+        tree.insert(a[i]);
+    }
+    return res;
+};
 const main = () => {
     let words = ["a", "aba", "ababa", "aa"]
     let words2 = ["pa", "papa", "ma", "mama"]

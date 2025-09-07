@@ -25,12 +25,12 @@ const diagonal_traverse_with_middle_bottomLeft_to_topRight = (g) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 const diagonal_traverse_with_middle_topLeft_to_bottomRight = (g) => {
     let n = g.length, m = g[0].length, res = [];
-    for (let i = n - 1; i > 0; i--) { // first col starting point
+    for (let i = n - 1; i >= 0; i--) { // contain middle diagonal
         let cur = [];
         for (let y = 0; i + y < n && y < m; y++) cur.push(g[i + y][y]);
         res.push(cur);
     }
-    for (let j = 0; j < m; j++) { // first row as starting point, contain middle diagonal
+    for (let j = 1; j < m; j++) {
         let cur = [];
         for (let x = 0; x < n && x + j < m; x++) cur.push(g[x][x + j]);
         res.push(cur);

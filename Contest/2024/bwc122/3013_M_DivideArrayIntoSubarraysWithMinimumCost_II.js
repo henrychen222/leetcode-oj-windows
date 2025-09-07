@@ -1,7 +1,9 @@
-/*
-01/12/23 evening
-reference:https://leetcode.com/contest/biweekly-contest-88/ranking liouzhou_101
-*/
+/**
+ * 01/22/24 afternoon
+ * https://leetcode.com/contest/biweekly-contest-122/problems/divide-an-array-into-subarrays-with-minimum-cost-ii/
+ */
+
+const pr = console.log;
 
 class SplayNode {
     constructor(value) {
@@ -47,7 +49,7 @@ class SplayTree {
         y.parent = x;
         y.update();
         x.update();
-    }       
+    }
     zag(x) { // left rotation
         let y = x.parent;
         if (x.left != null) x.left.parent = y;
@@ -277,15 +279,6 @@ class SplayTree {
         let rank_y = this.findRankOf(y);
         return rank_y - rank_x + 1;
     }
-    countRange(start, end) {
-        let l = this.ceiling(start); // >= start
-        let r = this.floor(end); // <= end
-        if (l == null || r == null) return 0;
-        let rl = this.rankOf(l);
-        let rr = this.rankOf(r);
-        rr += this.count(r);
-        return rr - rl;
-    }
     rankOf(value) { // The number of elements strictly less than value
         let x = this.findPrecursorOf(value);
         return x == null ? 0 : this.findRankOf(x) + 1;
@@ -294,18 +287,18 @@ class SplayTree {
         let x = this.findKthNode(rank);
         return x == null ? null : (x.val);
     }
-    higher(value) { // > upper_bound()
+    higher(value) { // > upper_bound()  LST.next(value)
         let node = this.findSuccessorOf(value);
         return node == null ? null : (node.val);
     }
-    lower(value) { // <
+    lower(value) { // <  LST.prev(value - 1)
         let node = this.findPrecursorOf(value);
         return node == null ? null : (node.val);
     }
-    ceiling(value) { // >= lower_bound()  LST.next(value)
+    ceiling(value) { // >=
         return this.has(value) ? value : this.higher(value);
     }
-    floor(value) { // <=                  LST.prev(value)
+    floor(value) { // <= 
         return this.has(value) ? value : this.lower(value);
     }
     first() {
@@ -343,50 +336,46 @@ class SplayTree {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-const pr = console.log;
+// Accepted
+// reference: skywalkert
+const minimumCost = (a, k, dist) => {
+    let L = new SplayTree(), R = new SplayTree(),
+        n = a.length, res = Number.MAX_SAFE_INTEGER, cur = 0;
+    for (let i = 1; i < n; i++) {
+        L.insert(a[i]);
+        cur += a[i];
+        if (L.size() >= k) {
+            let last = L.pollLast();
+            cur -= last;
+            R.insert(last);
+        }
+        if (i - dist > 0) {
+            res = Math.min(res, cur);
+            let it = a[i - dist];
+            if (L.has(it)) {
+                cur -= it;
+                L.remove(it);
+                if (!R.isEmpty()) {
+                    it = R.poll();
+                    cur += it;
+                    L.insert(it);
+                }
+            } else {
+                R.remove(it);
+            }
+        }
+    }
+    res += a[0]
+    return res;
+};
 
 const main = () => {
-    let Atree = new SplayTree();
-    let A = [3, 2, -1, 6, 5, 7, -2];
-    for (const x of A) Atree.insert(x);
-    A.sort((x, y) => x - y);
-    pr(A, A.length, Atree.size()); // 7 7
-    pr("findKthNode", Atree.findKth(0), Atree.findKth(1), Atree.findKth(2), Atree.findKth(3), Atree.findKth(4)) // -2 -1 2 3 5
-    pr("rankOf", Atree.rankOf(3), Atree.rankOf(4), Atree.rankOf(5), Atree.rankOf(6)) // 3 4 4 5
-    pr(Atree.first(), Atree.last()) // -2 7
-    pr(Atree.higher(-2), Atree.higher(-1), Atree.higher(6), Atree.higher(7)); // -1 2 7 null
-    pr(Atree.lower(-2), Atree.lower(-1), Atree.lower(6), Atree.lower(7)); // null -2 5 6
-    pr(Atree.count(-2), Atree.count(7)) // 1 1
-    Atree.remove(-2);
-    pr(Atree.size()); // 6
-    Atree.remove(7);
-    pr(Atree.higher(6)); // null
-    pr(Atree.lower(-1)); // null
-    pr(Atree.size()) // 5
-    pr(Atree.first(), Atree.last()) // -1 6
-
-    let B = [3, 2, -1, 6, 5, 7, 7, -2, -2, -2];
-    let Btree = new SplayTree();
-    for (const x of B) Btree.insert(x);
-    B.sort((x, y) => x - y);
-    pr("B", B);
-    pr(Btree.show(), Btree.size()); // 10
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 2 3
-    pr(Btree.higher(-2), Btree.higher(-1), Btree.higher(6), Btree.higher(7)); // -1 2 7 null
-    Btree.remove(-2);
-    pr(Btree.size()); // 9
-    Btree.remove(7);
-    pr(Btree.size()) // 8
-    pr(Btree.higher(6)); // 7
-    pr(Btree.lower(-1)); // -2
-    pr(Btree.first(), Btree.last()) // -2 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 2
-    Btree.remove(-2);
-    Btree.remove(-2);
-    pr(Btree.size()) // 6
-    pr(Btree.first(), Btree.last()) // -1 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 0
+    let a = [1, 3, 2, 6, 4, 2], k = 3, dist = 3
+    let a2 = [10, 1, 2, 2, 2, 1], k2 = 4, dist2 = 3;
+    let a3 = [10, 8, 18, 9], k3 = 3, dist3 = 1
+    pr(minimumCost(a, k, dist))
+    pr(minimumCost(a2, k2, dist2))
+    pr(minimumCost(a3, k3, dist3))
 };
 
 main()

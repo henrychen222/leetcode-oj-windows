@@ -1,7 +1,9 @@
-/*
-01/12/23 evening
-reference:https://leetcode.com/contest/biweekly-contest-88/ranking liouzhou_101
-*/
+/**
+ * 08/03/24 evening
+ * https://leetcode.com/contest/weekly-contest-409/problems/shortest-distance-after-road-addition-queries-ii/
+ */
+
+const pr = console.log;
 
 class SplayNode {
     constructor(value) {
@@ -47,7 +49,7 @@ class SplayTree {
         y.parent = x;
         y.update();
         x.update();
-    }       
+    }
     zag(x) { // left rotation
         let y = x.parent;
         if (x.left != null) x.left.parent = y;
@@ -277,15 +279,6 @@ class SplayTree {
         let rank_y = this.findRankOf(y);
         return rank_y - rank_x + 1;
     }
-    countRange(start, end) {
-        let l = this.ceiling(start); // >= start
-        let r = this.floor(end); // <= end
-        if (l == null || r == null) return 0;
-        let rl = this.rankOf(l);
-        let rr = this.rankOf(r);
-        rr += this.count(r);
-        return rr - rl;
-    }
     rankOf(value) { // The number of elements strictly less than value
         let x = this.findPrecursorOf(value);
         return x == null ? 0 : this.findRankOf(x) + 1;
@@ -298,7 +291,7 @@ class SplayTree {
         let node = this.findSuccessorOf(value);
         return node == null ? null : (node.val);
     }
-    lower(value) { // <
+    lower(value) { // < 
         let node = this.findPrecursorOf(value);
         return node == null ? null : (node.val);
     }
@@ -343,50 +336,55 @@ class SplayTree {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-const pr = console.log;
+// Accepted kmjp  1365ms
+const shortestDistanceAfterQueries = (n, queries) => {
+    let tree = new SplayTree(), res = [];
+    for (let i = 0; i < n; i++) tree.insert(i);
+    for (const [l, r] of queries) {
+        while (1) {
+            let pre = tree.higher(l);
+            if (pre >= r) break;
+            tree.remove(pre);
+        }
+        res.push(tree.size() - 1);
+    }
+    return res;
+};
+
+// Accepted 462ms
+// reference: uwi
+const shortestDistanceAfterQueries1 = (n, queries) => {
+    let tree = new SplayTree(), vals = Array(n + 1).fill(0), cur = n - 1, res = [];
+    for (const [l, r] of queries) {
+        let pre = tree.floor(l), ok = true;
+        if (pre != null) {
+            let to = vals[pre] + 1 + pre;
+            if (r <= to) ok = false;
+        }
+        // pr(l, pre, vals, ok)
+        if (ok) {
+            while (1) {
+                let pos = tree.ceiling(l);
+                pr("pos", pos, "cur", cur)
+                if (pos == null || pos >= r) break;
+                tree.remove(pos);
+                cur += vals[pos];
+                vals[pos] = 0;
+            }
+            tree.insert(l);
+            vals[l] = r - l - 1;
+            cur -= r - l - 1;
+        }
+        res.push(cur);
+    }
+    return res;
+};
 
 const main = () => {
-    let Atree = new SplayTree();
-    let A = [3, 2, -1, 6, 5, 7, -2];
-    for (const x of A) Atree.insert(x);
-    A.sort((x, y) => x - y);
-    pr(A, A.length, Atree.size()); // 7 7
-    pr("findKthNode", Atree.findKth(0), Atree.findKth(1), Atree.findKth(2), Atree.findKth(3), Atree.findKth(4)) // -2 -1 2 3 5
-    pr("rankOf", Atree.rankOf(3), Atree.rankOf(4), Atree.rankOf(5), Atree.rankOf(6)) // 3 4 4 5
-    pr(Atree.first(), Atree.last()) // -2 7
-    pr(Atree.higher(-2), Atree.higher(-1), Atree.higher(6), Atree.higher(7)); // -1 2 7 null
-    pr(Atree.lower(-2), Atree.lower(-1), Atree.lower(6), Atree.lower(7)); // null -2 5 6
-    pr(Atree.count(-2), Atree.count(7)) // 1 1
-    Atree.remove(-2);
-    pr(Atree.size()); // 6
-    Atree.remove(7);
-    pr(Atree.higher(6)); // null
-    pr(Atree.lower(-1)); // null
-    pr(Atree.size()) // 5
-    pr(Atree.first(), Atree.last()) // -1 6
-
-    let B = [3, 2, -1, 6, 5, 7, 7, -2, -2, -2];
-    let Btree = new SplayTree();
-    for (const x of B) Btree.insert(x);
-    B.sort((x, y) => x - y);
-    pr("B", B);
-    pr(Btree.show(), Btree.size()); // 10
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 2 3
-    pr(Btree.higher(-2), Btree.higher(-1), Btree.higher(6), Btree.higher(7)); // -1 2 7 null
-    Btree.remove(-2);
-    pr(Btree.size()); // 9
-    Btree.remove(7);
-    pr(Btree.size()) // 8
-    pr(Btree.higher(6)); // 7
-    pr(Btree.lower(-1)); // -2
-    pr(Btree.first(), Btree.last()) // -2 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 2
-    Btree.remove(-2);
-    Btree.remove(-2);
-    pr(Btree.size()) // 6
-    pr(Btree.first(), Btree.last()) // -1 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 0
+    let n = 5, queries = [[2, 4], [0, 2], [0, 4]]
+    let n2 = 4, queries2 = [[0, 3], [0, 2]]
+    pr(shortestDistanceAfterQueries(n, queries))
+    pr(shortestDistanceAfterQueries(n2, queries2))
 };
 
 main()

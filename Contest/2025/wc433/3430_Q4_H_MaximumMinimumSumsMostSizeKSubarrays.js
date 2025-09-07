@@ -1,7 +1,145 @@
-/*
-01/12/23 evening
-reference:https://leetcode.com/contest/biweekly-contest-88/ranking liouzhou_101
-*/
+/**
+ * 01/18/25 evening
+ * https://leetcode.com/contest/weekly-contest-433/problems/maximum-and-minimum-sums-of-at-most-size-k-subarrays/
+ */
+
+const pr = console.log;
+
+function SegmentTreeRMinQ(input) { // range min query
+    let n, h, a;
+    let ini = Number.MAX_SAFE_INTEGER; // may need to set to 0 for some problem
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        h = a.length / 2;
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        initializeFromArray();
+        h = a.length / 2;
+    }
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[h + i] = input[i];
+        for (let i = h - 1; i >= 1; i--) pushup(i);
+    }
+    function update(pos, v) {
+        a[h + pos] = v;
+        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
+    }
+    function pushup(i) {
+        a[i] = f(a[left(i)], a[right(i)]);
+    }
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = ini;
+        if (l >= r) return res;
+        l += h;
+        r += h;
+        for (; l < r; l = parent(l), r = parent(r)) {
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
+        }
+        return res;
+    }
+    function f(x, y) {
+        return Math.min(x, y);
+    }
+    function parent(i) {
+        return i >> 1;
+    }
+    function left(i) {
+        return 2 * i;
+    }
+    function right(i) {
+        return 2 * i + 1;
+    }
+    function tree() {
+        return a;
+    }
+}
+
+function SegmentTreeRMaxQ(input) { // range max query
+    let n, h, a;
+    let ini = Number.MIN_SAFE_INTEGER;
+    if (Number.isInteger(input)) {
+        n = input;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        h = a.length / 2;
+    } else {
+        n = input.length;
+        a = Array(2 * 2 ** Math.ceil(Math.log2(n))).fill(ini);
+        initializeFromArray();
+        h = a.length / 2;
+    }
+    return { update, query, tree }
+    function initializeFromArray() {
+        for (let i = 0; i < n; i++) a[h + i] = input[i];
+        for (let i = h - 1; i >= 1; i--) pushup(i);
+    }
+    function update(pos, v) {
+        a[h + pos] = v;
+        for (let i = parent(h + pos); i >= 1; i = parent(i)) pushup(i);
+    }
+    function pushup(i) {
+        a[i] = f(a[left(i)], a[right(i)]);
+    }
+    function query(l, r) {
+        return Query(l, r + 1);
+    }
+    function Query(l, r) { // [L, R)
+        let res = ini;
+        if (l >= r) return res;
+        l += h;
+        r += h;
+        for (; l < r; l = parent(l), r = parent(r)) {
+            if (l & 1) res = f(res, a[l++]);
+            if (r & 1) res = f(res, a[--r]);
+        }
+        return res;
+    }
+    function f(x, y) {
+        return Math.max(x, y);
+    }
+    function parent(i) {
+        return i >> 1;
+    }
+    function left(i) {
+        return 2 * i;
+    }
+    function right(i) {
+        return 2 * i + 1;
+    }
+    function tree() {
+        return a;
+    }
+}
+
+// TLE
+const minMaxSubarraySum1 = (a, k) => {
+    let n = a.length, res = 0;
+    let stmin = new SegmentTreeRMinQ(n + 5), stmax = new SegmentTreeRMaxQ(n + 5);
+    for (let i = 0; i < n; i++) {
+        stmin.update(i, a[i]);
+        stmax.update(i, a[i]);
+    }
+    // pr(stmin.tree(), stmax.tree())
+    for (let size = 1; size <= k; size++) {
+        for (let l = 0; l + size - 1 < n; l++) {
+            let r = l + size - 1;
+            let min = stmin.query(l, r);
+            let max = stmax.query(l, r);
+            res += min;
+            res += max;
+            // pr(size, l, r, a.slice(l, r+1), "min", min, "max", max)
+        }
+    }
+    return res;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 class SplayNode {
     constructor(value) {
@@ -47,7 +185,7 @@ class SplayTree {
         y.parent = x;
         y.update();
         x.update();
-    }       
+    }
     zag(x) { // left rotation
         let y = x.parent;
         if (x.left != null) x.left.parent = y;
@@ -277,15 +415,6 @@ class SplayTree {
         let rank_y = this.findRankOf(y);
         return rank_y - rank_x + 1;
     }
-    countRange(start, end) {
-        let l = this.ceiling(start); // >= start
-        let r = this.floor(end); // <= end
-        if (l == null || r == null) return 0;
-        let rl = this.rankOf(l);
-        let rr = this.rankOf(r);
-        rr += this.count(r);
-        return rr - rl;
-    }
     rankOf(value) { // The number of elements strictly less than value
         let x = this.findPrecursorOf(value);
         return x == null ? 0 : this.findRankOf(x) + 1;
@@ -343,50 +472,60 @@ class SplayTree {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-const pr = console.log;
+// uwi TLE java Accepted
+// https://leetcode.cn/circle/discuss/DW1adK/
+const minMaxSubarraySum = (a, k) => {
+    let n = a.length, res = 0;
+    a = a.map((x, i) => [x, i]).sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+    (() => {
+        let tree = new SplayTree();
+        tree.insert(0);
+        tree.insert(n + 1);
+        for (let i = 0; i < n; i++) {
+            let pos = a[i][1] + 1;
+            let pre = tree.floor(pos);
+            let next = tree.ceiling(pos);
+            tree.insert(pos);
+            let l = pos - pre, r = next - pos, cnt = cal(l, r, k);
+            // pr(l, r, cnt)
+            res += cnt * a[i][0];
+        }
+    })();
+    (() => {
+        let tree = new SplayTree();
+        tree.insert(0);
+        tree.insert(n + 1);
+        for (let i = n - 1; i >= 0; i--) {
+            let pos = a[i][1] + 1;
+            let pre = tree.floor(pos);
+            let next = tree.ceiling(pos);
+            tree.insert(pos);
+            let l = pos - pre, r = next - pos, cnt = cal(l, r, k);
+            res += cnt * a[i][0];
+        }
+    })();
+    return res;
+};
+
+const totSub = (n) => n * (n + 1) / 2;
+const cal = (l, r, k) => {
+    let res = totSub(k);
+    let t = Math.max(0, k - l);
+    res -= totSub(t);
+    t = Math.max(0, k - r);
+    res -= totSub(t);
+    t = Math.max(0, k - l - r);
+    res += totSub(t);
+    return res;
+};
 
 const main = () => {
-    let Atree = new SplayTree();
-    let A = [3, 2, -1, 6, 5, 7, -2];
-    for (const x of A) Atree.insert(x);
-    A.sort((x, y) => x - y);
-    pr(A, A.length, Atree.size()); // 7 7
-    pr("findKthNode", Atree.findKth(0), Atree.findKth(1), Atree.findKth(2), Atree.findKth(3), Atree.findKth(4)) // -2 -1 2 3 5
-    pr("rankOf", Atree.rankOf(3), Atree.rankOf(4), Atree.rankOf(5), Atree.rankOf(6)) // 3 4 4 5
-    pr(Atree.first(), Atree.last()) // -2 7
-    pr(Atree.higher(-2), Atree.higher(-1), Atree.higher(6), Atree.higher(7)); // -1 2 7 null
-    pr(Atree.lower(-2), Atree.lower(-1), Atree.lower(6), Atree.lower(7)); // null -2 5 6
-    pr(Atree.count(-2), Atree.count(7)) // 1 1
-    Atree.remove(-2);
-    pr(Atree.size()); // 6
-    Atree.remove(7);
-    pr(Atree.higher(6)); // null
-    pr(Atree.lower(-1)); // null
-    pr(Atree.size()) // 5
-    pr(Atree.first(), Atree.last()) // -1 6
-
-    let B = [3, 2, -1, 6, 5, 7, 7, -2, -2, -2];
-    let Btree = new SplayTree();
-    for (const x of B) Btree.insert(x);
-    B.sort((x, y) => x - y);
-    pr("B", B);
-    pr(Btree.show(), Btree.size()); // 10
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 2 3
-    pr(Btree.higher(-2), Btree.higher(-1), Btree.higher(6), Btree.higher(7)); // -1 2 7 null
-    Btree.remove(-2);
-    pr(Btree.size()); // 9
-    Btree.remove(7);
-    pr(Btree.size()) // 8
-    pr(Btree.higher(6)); // 7
-    pr(Btree.lower(-1)); // -2
-    pr(Btree.first(), Btree.last()) // -2 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 2
-    Btree.remove(-2);
-    Btree.remove(-2);
-    pr(Btree.size()) // 6
-    pr(Btree.first(), Btree.last()) // -1 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 0
+    let a = [1, 2, 3], k = 2
+    let a2 = [1, -3, 1], k2 = 2
+    let a3 = [2, 5, -1, 7, -3, -1, -2], k3 = 4;
+    pr(minMaxSubarraySum(a, k))
+    pr(minMaxSubarraySum(a2, k2))
+    pr(minMaxSubarraySum(a3, k3)) // 60
 };
 
 main()

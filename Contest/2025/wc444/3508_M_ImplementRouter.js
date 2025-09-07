@@ -1,7 +1,58 @@
-/*
-01/12/23 evening
-reference:https://leetcode.com/contest/biweekly-contest-88/ranking liouzhou_101
-*/
+/**
+ * 04/05/25 evening
+ * https://leetcode.com/contest/weekly-contest-444/problems/implement-router/
+ */
+
+const pr = console.log;
+
+class fastQueue {
+    constructor() {
+        this.m = {};
+        this.first = 0;
+        this.last = -1;
+    }
+    push(...args) {
+        let i = 0;
+        if (this.size() == 0) {
+            this.first = this.last = 0;
+            this.m[this.first] = args[i++];
+        }
+        for (; i < args.length; i++) this.m[++this.last] = args[i];
+    }
+    unshift(...args) {
+        let i = 0;
+        if (this.size() == 0) {
+            this.first = this.last = 0;
+            this.m[this.first] = args[i++];
+        }
+        for (; i < args.length; i++) this.m[--this.first] = args[i];
+    }
+    pop() {
+        let res = this.m[this.last];
+        delete this.m[this.last];
+        this.last--;
+        return res;
+    }
+    shift() {
+        let res = this.m[this.first];
+        delete this.m[this.first];
+        this.first++;
+        return res;
+    }
+    front() {
+        return this.m[this.first];
+    }
+    back() {
+        return this.m[this.last];
+    }
+    size() {
+        if (this.first > this.last) return 0;
+        return this.last - this.first + 1;
+    }
+    show() {
+        return this.m;
+    }
+}
 
 class SplayNode {
     constructor(value) {
@@ -47,7 +98,7 @@ class SplayTree {
         y.parent = x;
         y.update();
         x.update();
-    }       
+    }
     zag(x) { // left rotation
         let y = x.parent;
         if (x.left != null) x.left.parent = y;
@@ -343,50 +394,97 @@ class SplayTree {
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-const pr = console.log;
+const generateMapTreeSet = (m, k, v) => { if (!m.has(k)) m.set(k, new SplayTree()); m.get(k).insert(v); };
+const removeMapTreeSet = (m, k, v) => { m.has(k) && m.get(k).size() > 1 ? m.get(k).remove(v) : m.delete(k); };
+
+// Accepted
+function Router(memoryLimit) {
+    let desMap = new Map(), q = new fastQueue(), se = new Set();
+    return { addPacket, forwardPacket, getCount }
+    function addPacket(source, destination, timestamp) {
+        let cur = [source, destination, timestamp]
+        if (se.has(JSON.stringify(cur))) return false;
+        if (q.size() >= memoryLimit) forwardPacket();
+        q.push(cur);
+        se.add(JSON.stringify(cur));
+        generateMapTreeSet(desMap, destination, timestamp);
+        // pr("addPacket", q.show())
+        return true;
+    }
+    function forwardPacket() {
+        let res = q.shift() || [];
+        se.delete(JSON.stringify(res));
+        removeMapTreeSet(desMap, res[1], res[2])
+        // pr("forwardPacket", q.show())
+        return res;
+    }
+    function getCount(destination, startTime, endTime) {
+        if (!desMap.has(destination)) return 0;
+        let tree = desMap.get(destination);
+        // pr(q.show(), tree.show())
+        return tree.countRange(startTime, endTime);
+    }
+}
 
 const main = () => {
-    let Atree = new SplayTree();
-    let A = [3, 2, -1, 6, 5, 7, -2];
-    for (const x of A) Atree.insert(x);
-    A.sort((x, y) => x - y);
-    pr(A, A.length, Atree.size()); // 7 7
-    pr("findKthNode", Atree.findKth(0), Atree.findKth(1), Atree.findKth(2), Atree.findKth(3), Atree.findKth(4)) // -2 -1 2 3 5
-    pr("rankOf", Atree.rankOf(3), Atree.rankOf(4), Atree.rankOf(5), Atree.rankOf(6)) // 3 4 4 5
-    pr(Atree.first(), Atree.last()) // -2 7
-    pr(Atree.higher(-2), Atree.higher(-1), Atree.higher(6), Atree.higher(7)); // -1 2 7 null
-    pr(Atree.lower(-2), Atree.lower(-1), Atree.lower(6), Atree.lower(7)); // null -2 5 6
-    pr(Atree.count(-2), Atree.count(7)) // 1 1
-    Atree.remove(-2);
-    pr(Atree.size()); // 6
-    Atree.remove(7);
-    pr(Atree.higher(6)); // null
-    pr(Atree.lower(-1)); // null
-    pr(Atree.size()) // 5
-    pr(Atree.first(), Atree.last()) // -1 6
+    let router = new Router(3);
+    pr(router.addPacket(1, 4, 90)); // True
+    pr(router.addPacket(2, 5, 90)); // True
+    pr(router.addPacket(1, 4, 90)); // False
+    pr(router.addPacket(3, 5, 95)); // True
+    pr(router.addPacket(4, 5, 105)); // True
+    pr(router.forwardPacket()); // [2, 5, 90]
+    pr(router.addPacket(5, 2, 110)); // True
+    pr(router.getCount(5, 100, 110)); // 1
 
-    let B = [3, 2, -1, 6, 5, 7, 7, -2, -2, -2];
-    let Btree = new SplayTree();
-    for (const x of B) Btree.insert(x);
-    B.sort((x, y) => x - y);
-    pr("B", B);
-    pr(Btree.show(), Btree.size()); // 10
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 2 3
-    pr(Btree.higher(-2), Btree.higher(-1), Btree.higher(6), Btree.higher(7)); // -1 2 7 null
-    Btree.remove(-2);
-    pr(Btree.size()); // 9
-    Btree.remove(7);
-    pr(Btree.size()) // 8
-    pr(Btree.higher(6)); // 7
-    pr(Btree.lower(-1)); // -2
-    pr(Btree.first(), Btree.last()) // -2 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 2
-    Btree.remove(-2);
-    Btree.remove(-2);
-    pr(Btree.size()) // 6
-    pr(Btree.first(), Btree.last()) // -1 7
-    pr(Btree.count(100), Btree.count(3), Btree.count(7), Btree.count(-2)) // 0 1 1 0
+    pr()
+    let router2 = new Router(2);
+    pr(router2.addPacket(7, 4, 90)); // True
+    pr(router2.forwardPacket()); // [7, 4, 90]
+    pr(router2.forwardPacket()); // []
+
+    pr()
+    let router_debug1 = new Router(2);
+    pr(router_debug1.addPacket(2, 5, 1)); // true
+    pr(router_debug1.forwardPacket()); // [2, 5, 1]
+    pr(router_debug1.getCount(5, 1, 1)); // 0
+
+    pr()
+    let router_debug2 = new Router(4);
+    pr(router_debug2.addPacket(4, 5, 1)); // true
+    pr(router_debug2.getCount(5, 1, 1)); // 1
+
+    pr()
+    let router_debug3 = new Router(3);
+    pr(router_debug3.addPacket(1, 4, 6)); // true
+    pr(router_debug3.getCount(4, 1, 4)); // 0
+
+    pr()
+    let router_debug4 = new Router(4);
+    pr(router_debug4.addPacket(4, 2, 1)); // true
+    pr(router_debug4.addPacket(3, 2, 1)); // true
+    pr(router_debug4.getCount(2, 1, 1)); // 2
+
+
+    pr()
+    let router_debug5 = new Router(2);
+    pr(router_debug5.addPacket(1, 4, 1)); // true
+    pr(router_debug5.addPacket(5, 4, 1)); // true
+    pr(router_debug5.addPacket(1, 4, 1)); // false
+    pr(router_debug5.getCount(4, 1, 1)); // 2
+    pr(router_debug5.forwardPacket()); // [1,4,1]
+    pr(router_debug5.getCount(4, 1, 1)); // 1
+
 };
 
 main()
+
+
+
+
+// let se = new Set();
+// se.add(JSON.stringify([1, 4, 90]));
+// se.add(JSON.stringify([2, 4, 90]));
+
+// pr(se)
+// pr(se.has(JSON.stringify([1, 4, 90])))
