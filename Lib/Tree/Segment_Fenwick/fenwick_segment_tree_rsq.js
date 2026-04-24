@@ -4,7 +4,7 @@
 fenwick reference:
 https://en.wikipedia.org/wiki/Fenwick_tree
 https://www.geeksforgeeks.org/binary-indexed-tree-or-fenwick-tree-2/
-
+https://csacademy.com/lesson/fenwick_trees
 
 translate:
 fen.update(idx, 1) -> st.update(idx, ++f[idx])

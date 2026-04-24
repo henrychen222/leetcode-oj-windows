@@ -1,5 +1,8 @@
 /*
-05/26/20 night  01/16/24 evening update
+05/26/20 night
+01/16/24 evening update
+04/23/26 night update
+
 https://leetcode.com/problems/car-pooling/
 https://www.acwing.com/solution/LeetCode/content/2562/
 */
@@ -7,18 +10,17 @@ https://www.acwing.com/solution/LeetCode/content/2562/
 const pr = console.log;
 
 function DiffArray(n) {
-    let imos = Array(n).fill(0);
+    let diff = Array(n).fill(0);
     return { update, simulate, D }
     function update(l, r, v) {
-        imos[l] += v;
-        imos[r] -= v;
-        // if (r + 1 < n) imos[r + 1] -= v;
+        diff[l] += v;
+        if (r + 1 < n) diff[r + 1] -= v;
     }
     function simulate() {
-        for (let i = 1; i < n; i++) imos[i] += imos[i - 1];
+        for (let i = 1; i < n; i++) diff[i] += diff[i - 1];
     }
     function D() {
-        return imos;
+        return diff;
     }
 }
 
@@ -26,12 +28,11 @@ function DiffArray(n) {
 const carPooling = (trips, capacity) => {
     let max = -Infinity;
     for (const [, from, to] of trips) max = Math.max(max, from, to);
-    let da = new DiffArray(max + 1);
+    let da = new DiffArray(max);
     for (const [v, from, to] of trips) {
-        da.update(from, to, v);
+        da.update(from, to - 1, v); // passenger on board: [from, to) when get off at time to
     }
     da.simulate();
-    pr(da.D())
     return da.D().every(x => x <= capacity);
 };
 

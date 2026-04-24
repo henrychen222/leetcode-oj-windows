@@ -1,6 +1,9 @@
 /*
  * 08/18/23 night
  * https://leetcode.com/problems/maximum-segment-sum-after-removals/
+ *
+ * same problem:
+ * https://csacademy.com/contest/archive/task/array-removal/
  */
 
 const pr = console.log;

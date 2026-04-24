@@ -1,6 +1,9 @@
 /**
  * 08/19/21 afternoon
  * https://leetcode.com/problems/min-cost-to-connect-all-points/
+ *
+ * similar problem:
+ * https://www.spoj.com/problems/MST/
  */
 
 function DJSet(n) {
