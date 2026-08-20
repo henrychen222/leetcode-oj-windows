@@ -1,2 +1,0 @@
-tsc 1022_E_SumOfRootToLeafBinaryNumbers.ts
-node 1022_E_SumOfRootToLeafBinaryNumbers.js

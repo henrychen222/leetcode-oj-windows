@@ -1,2 +1,0 @@
-tsc 225_E_ImplementStackUsingQueues.ts
-node 225_E_ImplementStackUsingQueues.js

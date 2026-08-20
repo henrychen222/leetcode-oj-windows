@@ -1,2 +1,0 @@
-tsc 965_E_UnivaluedBinaryTree.ts
-node 965_E_UnivaluedBinaryTree.js
